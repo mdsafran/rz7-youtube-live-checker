@@ -1,0 +1,40 @@
+name: YouTube Live Checker
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Manual trigger from GitHub Actions tab
+
+jobs:
+  check-youtube-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r github-actions/youtube-checker/requirements.txt
+
+      - name: Run YouTube live checker
+        run: python github-actions/youtube-checker/check_youtube_live.py
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## YouTube Live Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Ran at: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "Check the workflow logs for detailed results." >> $GITHUB_STEP_SUMMARY
