@@ -152,18 +152,20 @@ def try_fetch_live_details(video_id: str) -> dict:
             info = ydl.extract_info(video_url, download=False)
 
         if info:
-            viewers = info.get("concurrent_view_count") or info.get("view_count") or 0
+            viewers = info.get("concurrent_view_count")
             thumbnail = info.get("thumbnail")
-            return {"viewers": int(viewers), "thumbnail": thumbnail}
+            return {
+    "viewers": int(viewers) if viewers is not None else None,
+    "thumbnail": thumbnail,
+}
     except Exception as e:
         log(f"  Deep extraction failed (non-fatal): {str(e)[:150]}")
 
     # Fallback: construct thumbnail from video ID, no viewer count
     return {
-        "viewers": 0,
-        "thumbnail": f"https://i.ytimg.com/vi/{video_id}/maxresdefault_live.jpg",
-    }
-
+    "viewers": None,
+    "thumbnail": f"https://i.ytimg.com/vi/{video_id}/maxresdefault_live.jpg",
+}
 
 # ── Supabase API helpers ────────────────────────────────────────
 
@@ -228,7 +230,7 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
 
         video_id = check["video_id"]
         title = check["title"]
-        viewers = 0
+        viewers = None
         thumbnail = None
         video_url = None
 
@@ -264,15 +266,18 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
                 "youtube_checked_by": CHECKED_BY,
             }
         elif status == "LIVE":
-            update_data = {
-                "youtube_is_live": True,
-                "youtube_live_title": title,
-                "youtube_viewer_count": viewers,
-                "youtube_video_url": video_url,
-                "youtube_thumbnail_url": thumbnail,
-                "youtube_last_checked": now_iso,
-                "youtube_checked_by": CHECKED_BY,
-            }
+    update_data = {
+        "youtube_is_live": True,
+        "youtube_live_title": title,
+        "youtube_video_url": video_url,
+        "youtube_thumbnail_url": thumbnail,
+        "youtube_last_checked": now_iso,
+        "youtube_checked_by": CHECKED_BY,
+    }
+
+    if viewers is not None:
+        update_data["youtube_viewer_count"] = viewers
+      
         else:  # OFFLINE
             update_data = {
                 "youtube_is_live": False,
