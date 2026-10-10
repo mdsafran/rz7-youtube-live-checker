@@ -265,18 +265,18 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
                 "youtube_last_checked": now_iso,
                 "youtube_checked_by": CHECKED_BY,
             }
-        elif status == "LIVE":
-    update_data = {
-        "youtube_is_live": True,
-        "youtube_live_title": title,
-        "youtube_video_url": video_url,
-        "youtube_thumbnail_url": thumbnail,
-        "youtube_last_checked": now_iso,
-        "youtube_checked_by": CHECKED_BY,
-    }
+                elif status == "LIVE":
+            update_data = {
+                "youtube_is_live": True,
+                "youtube_live_title": title,
+                "youtube_video_url": video_url,
+                "youtube_thumbnail_url": thumbnail,
+                "youtube_last_checked": now_iso,
+                "youtube_checked_by": CHECKED_BY,
+            }
 
-    if viewers is not None:
-        update_data["youtube_viewer_count"] = viewers      
+            if viewers is not None:
+                update_data["youtube_viewer_count"] = viewers      
     else:  # OFFLINE
             update_data = {
                 "youtube_is_live": False,
