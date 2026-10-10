@@ -155,17 +155,17 @@ def try_fetch_live_details(video_id: str) -> dict:
             viewers = info.get("concurrent_view_count")
             thumbnail = info.get("thumbnail")
             return {
-    "viewers": int(viewers) if viewers is not None else None,
-    "thumbnail": thumbnail,
-}
+                "viewers": int(viewers) if viewers is not None else None,
+                "thumbnail": thumbnail,
+            }
     except Exception as e:
         log(f"  Deep extraction failed (non-fatal): {str(e)[:150]}")
 
     # Fallback: construct thumbnail from video ID, no viewer count
     return {
-    "viewers": None,
-    "thumbnail": f"https://i.ytimg.com/vi/{video_id}/maxresdefault_live.jpg",
-}
+        "viewers": None,
+        "thumbnail": f"https://i.ytimg.com/vi/{video_id}/maxresdefault_live.jpg",
+    }
 
 # ── Supabase API helpers ────────────────────────────────────────
 
@@ -265,7 +265,7 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
                 "youtube_last_checked": now_iso,
                 "youtube_checked_by": CHECKED_BY,
             }
-                elif status == "LIVE":
+        elif status == "LIVE":
             update_data = {
                 "youtube_is_live": True,
                 "youtube_live_title": title,
@@ -275,9 +275,10 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
                 "youtube_checked_by": CHECKED_BY,
             }
 
+            # Only update the count when a concurrent viewer count was extracted.
             if viewers is not None:
-                update_data["youtube_viewer_count"] = viewers      
-    else:  # OFFLINE
+                update_data["youtube_viewer_count"] = viewers
+        else:  # OFFLINE
             update_data = {
                 "youtube_is_live": False,
                 "youtube_live_title": None,
