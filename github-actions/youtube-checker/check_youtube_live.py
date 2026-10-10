@@ -276,9 +276,8 @@ def run_check(supabase_url: str, supabase_key: str, slug_filter: str | None = No
     }
 
     if viewers is not None:
-        update_data["youtube_viewer_count"] = viewers
-      
-        else:  # OFFLINE
+        update_data["youtube_viewer_count"] = viewers      
+    else:  # OFFLINE
             update_data = {
                 "youtube_is_live": False,
                 "youtube_live_title": None,
